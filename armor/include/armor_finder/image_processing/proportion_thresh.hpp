@@ -26,7 +26,7 @@ namespace sp
     void proportion_thresh(const cv::Mat&, const cv::Mat&, double, double);
     int get_threshold_(cv::Mat&, double);
     
-    void proportion_thresh(const cv::Mat& in, const cv::Mat& out, double max_val, double proportion) //han's proportion_thresh
+    void proportion_thresh(cv::Mat& in, cv::Mat& out, double max_val, double proportion) //han's proportion_thresh
     {
         int rows = in.rows;
         int cols = in.cols;
@@ -40,9 +40,12 @@ namespace sp
         int pos = 0;
         for(int i=0;i<rows;i++)
         {
+            //获取第i行首像素指针
+            uchar* p = in.ptr<uchar>(i);
+            //对第i行的每个像素（Byte）进行操作
             for(int j=0;j<cols;j++)
             {
-                color_value[pos++] = in.at<uchar>(i,j);
+                color_value[pos++] = p[j];
             }
         }
         std::nth_element(color_value.begin(), color_value.end()-rows*cols*proportion, color_value.end());

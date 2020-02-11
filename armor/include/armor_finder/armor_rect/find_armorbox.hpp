@@ -5,6 +5,7 @@
 # include "armorbox_isok.hpp"
 # include "../distance/PNP.hpp"
 # include "../image_processing/classifier.hpp"
+# include "../image_processing/ORB_classifier.hpp"
 # include "../image_processing/quadrilateral_to_mat.hpp"
 # include "../../../../other/include/drawText_quadrilateral.hpp"
 
@@ -20,16 +21,25 @@ std::vector<cv::Rect> findArmorBox(cv::Mat& mat_real, std::vector<cv::RotatedRec
 	std::vector<cv::RotatedRect> armor_boxes; // 装甲板矩形容器
 	std::vector<cv::Rect> armor_boxes_up_right_rects; // 装甲板矩形容器
 
+    #ifdef DEBUG_FINDARMORBOX
+    std::cout<<"开始DEBUG_FINDARMORBOX"<<std::endl;
+    #endif
 
     for (int i = 0; i < light_boxes.size(); i++)    
     {
 		bool skip_light = false;
-        for (int j=0;j<light_boxes.size();j++)
+        for (int j=i;j<light_boxes.size();j++)
 
 			if (skip_light = sp::armorbox_isok(light_boxes[i], light_boxes[j]) && i!=j)// 筛选条件
 			{
 				// armor_boxes.push_back(sp::get_armor(mat_real, light_boxes[i], light_boxes[j]));
                 sp::get_armor(mat_real, light_boxes[i], light_boxes[j]);
+                
+                # ifdef CALSSIFIER_IMAGE_BY_IMAGE
+                cv::imshow("mat_real",mat_real);
+                cv::waitKey(0);
+                # endif
+                
                 armor_boxes_up_right_rects.push_back(sp::get_armor_up_right_rect(light_boxes[i], light_boxes[j]));
 			}
 
@@ -48,6 +58,10 @@ std::vector<cv::Rect> findArmorBox(cv::Mat& mat_real, std::vector<cv::RotatedRec
 //画出装甲板
 void get_armor(cv::Mat& mat_real, const cv::RotatedRect rect_i, const cv::RotatedRect rect_j)
 {
+    # ifdef DEBUG
+    std::cout << "开始画装甲板" << std::endl;
+    # endif
+
     cv::RotatedRect rect_l_pre = rect_i.center.x < rect_j.center.x ? rect_i : rect_j;
     cv::RotatedRect rect_r_pre = rect_i.center.x > rect_j.center.x ? rect_i : rect_j;
     
@@ -287,21 +301,6 @@ void get_armor(cv::Mat& mat_real, const cv::RotatedRect rect_i, const cv::Rotate
     std::cout << std::endl;
     #endif
 
-    // # ifdef SHOW_ARMOR
-    // for (int i = 0; i < 4; i++)
-    // {
-    //     #ifdef USE_RED
-    //     cv::line(mat_real, vertices_armor[i], vertices_armor[(i + 1) % 4], cv::Scalar(0, 0, 255), 2, 8, 0);
-    //     #endif
-
-    //     #ifdef USE_BLUE
-    //     cv::line(mat_real, vertices_armor[i], vertices_armor[(i + 1) % 4], cv::Scalar(255, 0, 0), 2, 8, 0);
-    //     #endif
-
-    //     // cv::line(mat_real, vertices_dual_light[i], vertices_dual_light[(i + 1) % 4], cv::Scalar(0, 255, 0), 2, 8, 0);
-    // }
-    // # endif
-
     // 分类器
     // 分类器获取装甲板编号
 
@@ -323,16 +322,19 @@ void get_armor(cv::Mat& mat_real, const cv::RotatedRect rect_i, const cv::Rotate
         std::cout << "通过分类器" << std::endl;
         #endif
 
+
         #ifdef SHOW_DISTANCE
         // PNP获取距离和角度
         sp::get_distance(mat_real, vertices_dual_light);
         // sp::get_distance(mat_real, vertices_armor);
-
         // 在原图上显示装甲板编号
 		std::string num_armor_str = std::to_string(num_armor);
 		sp::drawText_quadrilateral(mat_real, vertices_armor[0], "#"+num_armor_str);
         #endif
 
+        #ifdef DEBUG_CLASSIFIER_ORB
+        std::cout << ">> 通过分类器" << std::endl;
+        #endif
 
         # ifdef SHOW_ARMOR
         for (int i = 0; i < 4; i++)
@@ -348,12 +350,18 @@ void get_armor(cv::Mat& mat_real, const cv::RotatedRect rect_i, const cv::Rotate
             // cv::line(mat_real, vertices_dual_light[i], vertices_dual_light[(i + 1) % 4], cv::Scalar(0, 255, 0), 2, 8, 0);
         }
         # endif
+
     }
     else
     {
         #ifdef DEBUG
-        std::cout << "未通过分类器" << std::endl;
+        std::cout << ">> 未通过分类器" << std::endl;
         #endif
+
+        #ifdef DEBUG_CLASSIFIER_ORB
+        std::cout << ">> 未通过分类器" << std::endl;
+        #endif
+        
     }
     
 

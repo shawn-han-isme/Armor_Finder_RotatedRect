@@ -28,7 +28,7 @@ namespace sp
         std::cout << std::endl;
         # endif
 
-		double length_width_rate_thresh_max = 7; //设定bbox的长宽比上阈值
+		double length_width_rate_thresh_max = 20; //设定bbox的长宽比上阈值
 		double length_width_rate_thresh_min = 2.7; //设定bbox的长宽比下阈值
 		double thresh_binar = 0.02; //二值化取thresh_binar最亮部分
 		int thresh_value = 220; // bboxes_light的色度阈值

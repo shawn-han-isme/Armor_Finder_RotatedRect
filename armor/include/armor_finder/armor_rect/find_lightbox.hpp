@@ -32,7 +32,7 @@ std::vector<cv::RotatedRect> findLightBox(cv::Mat& mat, cv::Mat& mat_real)
     cv::Mat show_contours = mat_real;
     for(int i=0; i<contours.size(); i++)
     {
-        cv::drawContours(show_contours, contours, -1, {255,255,255});
+        cv::drawContours(show_contours, contours, -1, {0,255,0});
     }
     cv::imshow("show_contours", show_contours);
     #endif
@@ -124,7 +124,21 @@ std::vector<cv::RotatedRect> findLightBox(cv::Mat& mat, cv::Mat& mat_real)
 
             //将灯条放到容器里
             light_boxes.push_back(rect);
+            
+            # ifdef DEBUG
+            std::cout << "本帧筛选出" << light_boxes.size() << "个可能灯条" << std::endl;
+            std::cout << std::endl;
+            # endif
+
         }
+        else
+        {
+            # ifdef DEBUG
+            std::cout << "未通过lightbox_isok" << std::endl;
+            std::cout << std::endl;
+            # endif
+        }
+        
     }
     return light_boxes;
 }

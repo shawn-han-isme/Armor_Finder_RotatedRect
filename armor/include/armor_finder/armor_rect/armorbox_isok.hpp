@@ -32,9 +32,18 @@ bool armorbox_isok(const cv::RotatedRect rect_i, const cv::RotatedRect rect_j)
 	&& sp::center_distance_isok(rect_i, rect_j)
 	&& sp::length_rate_isok(rect_i, rect_j))
 	{
+		#ifdef DEBUG_FINDARMORBOX
+		std::cout<<"armorbox被留下"<<std::endl;
+		#endif
 		return true;
 	}
-	else return false;
+	else 
+	{
+		#ifdef DEBUG_FINDARMORBOX
+		std::cout<<"armorbox被筛去"<<std::endl;
+		#endif
+		return false;
+	}
 }
 
 bool angle_isok(const cv::RotatedRect rect_i, const cv::RotatedRect rect_j)
@@ -48,7 +57,14 @@ bool angle_isok(const cv::RotatedRect rect_i, const cv::RotatedRect rect_j)
 	{
 		return true;
 	}
-	else return false;
+	else 
+	{
+		#ifdef DEBUG_FINDARMORBOX
+		std::cout<<"两个灯条的角度差不合适"<<std::endl;
+		#endif
+
+		return false;
+	}
 }
 bool center_height_isok(const cv::RotatedRect rect_i, const cv::RotatedRect rect_j)
 // 判断两个灯条中心的高度差是否合适
@@ -58,7 +74,14 @@ bool center_height_isok(const cv::RotatedRect rect_i, const cv::RotatedRect rect
 	{
 		return true;
 	}
-	else return false;
+	else
+	{
+		#ifdef DEBUG_FINDARMORBOX
+		std::cout<<"两个灯条中心的高度差不合适"<<std::endl;
+		#endif
+
+		return false;
+	}
 }
 bool center_distance_isok(const cv::RotatedRect rect_i, const cv::RotatedRect rect_j)
 // 判断两个灯条中心的距离是否合适
@@ -69,12 +92,19 @@ bool center_distance_isok(const cv::RotatedRect rect_i, const cv::RotatedRect re
 	double center_distance;
     cv::Point2f centers = rect_i.center - rect_j.center;
     center_distance = sqrt(centers.ddot(centers));
-	if(center_distance / rect_i_height < 3 
+	if(center_distance / rect_i_height < 5 
 	&& center_distance / rect_i_height > 0.5)
 	{
 		return true;
 	}
-	else return false;
+	else
+	{
+		#ifdef DEBUG_FINDARMORBOX
+		std::cout<<"两个灯条中心的距离不合适"<<std::endl;
+		#endif
+
+		return false;
+	}
 }
 bool length_rate_isok(const cv::RotatedRect rect_i, const cv::RotatedRect rect_j)
 // 判断两个灯条的长宽比是否合适
@@ -93,7 +123,14 @@ bool length_rate_isok(const cv::RotatedRect rect_i, const cv::RotatedRect rect_j
 	{
 		return true;
 	}
-	else return false;
+	else
+	{
+		#ifdef DEBUG_FINDARMORBOX
+		std::cout<<"两个灯条的长宽比不合适"<<std::endl;
+		#endif
+
+		return false;
+	}
 }
 }
 
