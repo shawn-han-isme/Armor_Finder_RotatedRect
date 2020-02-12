@@ -21,7 +21,7 @@
 // #define DEBUG_FINDARMORBOX
 // #define DEBUG_CLASSIFIER
 // #define DEBUG_CLASSIFIER_ORB
-#define DEBUG_PRINT_ARMORNUM
+// #define DEBUG_PRINT_ARMORNUM
 
 #define USE_NEW_CODE
 
@@ -40,9 +40,9 @@
 // #define SHOW_ARMOR_WHOLE //显示完整装甲板矩形（宽矩形）（废）
 // #define SHOW_DISTANCE //显示距离
 
-// #define FRAME_BY_FRAME
+#define FRAME_BY_FRAME
 // #define CALSSIFIER_IMAGE_BY_IMAGE
-#define SHOW_CLASSIFIER_IMAGE
+// #define SHOW_CLASSIFIER_IMAGE
 // #define CLASSIFIER_OUTPUT //输出分类器结果到"Video/image/dst/negative/和positive"
 
 #define CLASSIFIER_IMAGEPART_ROWS 100

@@ -2,7 +2,7 @@
 
 #include <opencv2/xfeatures2d.hpp>
 
-#define DRAW_IMAGE_FEATURE_MATCH
+// #define DRAW_IMAGE_FEATURE_MATCH
 
 namespace sp //使用命名空间sp
 {
