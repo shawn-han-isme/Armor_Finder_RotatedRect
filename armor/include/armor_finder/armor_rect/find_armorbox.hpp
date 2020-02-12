@@ -304,19 +304,31 @@ void get_armor(cv::Mat& mat_real, const cv::RotatedRect rect_i, const cv::Rotate
     // 分类器
     // 分类器获取装甲板编号
 
-    //筛选vertices_armor对角长度
+    //筛选vertices_armor对角长度比diagonal_rate
+    //筛选vertices_armor临边长度比adjacent_rate
 
     cv::Point2f diagonal_1 = cv::Point2f(vertices_armor[0].x-vertices_armor[2].x, vertices_armor[0].y-vertices_armor[2].y);
     cv::Point2f diagonal_2 = cv::Point2f(vertices_armor[1].x-vertices_armor[3].x, vertices_armor[1].y-vertices_armor[3].y);
+    cv::Point2f adjacent_1 = cv::Point2f(vertices_armor[0].x-vertices_armor[1].x, vertices_armor[0].y-vertices_armor[1].y);
+    cv::Point2f adjacent_2 = cv::Point2f(vertices_armor[1].x-vertices_armor[2].x, vertices_armor[1].y-vertices_armor[2].y);
 
-    float vertices_length_1 = diagonal_1.ddot(diagonal_1);
-    float vertices_length_2 = diagonal_2.ddot(diagonal_2);
+    float diagonal_length_1 = diagonal_1.ddot(diagonal_1);
+    float diagonal_length_2 = diagonal_2.ddot(diagonal_2);
+    float adjacent_length_1 = adjacent_1.ddot(adjacent_1);
+    float adjacent_length_2 = adjacent_2.ddot(adjacent_2);
+    
 
-    float vertices_rate = vertices_length_1>vertices_length_2 ? (vertices_length_1/vertices_length_2) : (vertices_length_2/vertices_length_1); //长对角线与短对角线之比
+    float diagonal_rate = diagonal_length_1>diagonal_length_2 ? (diagonal_length_1/diagonal_length_2) : (diagonal_length_2/diagonal_length_1); //长对角线与短对角线之比
+    float adjacent_rate = adjacent_length_1>adjacent_length_2 ? (adjacent_length_1/adjacent_length_2) : (adjacent_length_2/adjacent_length_1); //长对角线与短对角线之比
+
 
 
 	int num_armor = sp::classifier(armor_imagepart, "../Video/image/src/armor/image_positive_list.txt");
-    if(num_armor!=0 && vertices_rate<1.5)
+    if(num_armor!=0 
+    && diagonal_rate<1.5
+    && adjacent_rate<1.5
+    )
+    // if(true)
     {
         #ifdef DEBUG
         std::cout << "通过分类器" << std::endl;

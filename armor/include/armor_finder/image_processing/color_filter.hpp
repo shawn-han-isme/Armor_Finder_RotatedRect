@@ -59,49 +59,69 @@ void hsvColorFilter(cv::Mat& inputImage, cv::Mat& outputImage)
 			
 			CvScalar s;
 
-            # ifdef USE_RED
 			if (( //红色的HSV定义
-                (((s_hsv.val[0]>0)&&(s_hsv.val[0]<10)) || (s_hsv.val[0]>156)&&(s_hsv.val[0]<180))
-                // && ((s_hsv.val[1]>43)&&(s_hsv.val[1]<255))
-                && ((s_hsv.val[2]>0)&&(s_hsv.val[2]<221))
-                // (s_hsv.val[2]>250)
+                // s_hsv.val[0]>90	&&
+                // s_hsv.val[0]<130 &&
+				((s_hsv.val[2]>130))
                 ))
 			// if(false)
 			{
-				s.val[0]=0;
-				s.val[1]=0;
-				s.val[2]=0;
-				cvSet2D(hsv, i ,j, s);
-			}
-			else //将非红色赋值为黑色
-			{
+				#ifdef DEBUG
+				std::cout <<"HSV: "<<"("<<s.val[0]<<","<<s.val[1]<<","<<s.val[2]<<")"<<std::endl;
+				#endif
+
 				s.val[0]=255;
 				s.val[1]=255;
 				s.val[2]=255;
 				cvSet2D(hsv, i ,j, s);
-			}
-			
-            # endif
 
-            # ifdef USE_blue
-            // # ifdef USE_BLUE
-			if (!(
-                   ((s_hsv.val[0]>100)&&(s_hsv.val[0]<124))
-                && ((s_hsv.val[1]>43)&&(s_hsv.val[1]<255))
-                && ((s_hsv.val[2]>46)&&(s_hsv.val[2]<221))
-                ))
+				
+			}
+			else //将非红色赋值为黑色
 			{
 				s.val[0]=0;
 				s.val[1]=0;
 				s.val[2]=0;
 				cvSet2D(hsv, i ,j, s);
 			}
-            # endif
-
+			
 		}
 	#endif
 
 	#ifdef USE_BLUE
+	for (i = 0; i < height; i++)
+		for (j = 0; j < width; j++)
+		{
+			CvScalar s_hsv = cvGet2D(hsv, i, j);//获取像素点为（j, i）点的HSV的值 
+			
+			CvScalar s;
+
+			if (( //蓝色的HSV定义
+                // s_hsv.val[0]>90	&&
+                // s_hsv.val[0]<130 &&
+				((s_hsv.val[2]>254))
+                ))
+			// if(false)
+			{
+				#ifdef DEBUG
+				std::cout <<"HSV: "<<"("<<s.val[0]<<","<<s.val[1]<<","<<s.val[2]<<")"<<std::endl;
+				#endif
+
+				s.val[0]=255;
+				s.val[1]=255;
+				s.val[2]=255;
+				cvSet2D(hsv, i ,j, s);
+
+				
+			}
+			else //将非蓝色赋值为黑色
+			{
+				s.val[0]=0;
+				s.val[1]=0;
+				s.val[2]=0;
+				cvSet2D(hsv, i ,j, s);
+			}
+		}
 	#endif
 
 
@@ -109,7 +129,7 @@ void hsvColorFilter(cv::Mat& inputImage, cv::Mat& outputImage)
 
 	cv::cvtColor(outputImage, outputImage, CV_RGB2GRAY);
 
-    #ifdef DEBUG
+    #ifdef SHOW_DEBUG_HSV
 	cvNamedWindow("hsv_filter");
 	cvShowImage("hsv_filter", hsv);
     #endif

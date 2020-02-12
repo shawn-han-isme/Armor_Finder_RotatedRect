@@ -8,7 +8,7 @@
 namespace sp
 {
 std::vector<cv::RotatedRect> findLightBox(cv::Mat& mat, cv::Mat& mat_real)
-//mat是已经经过了RGB通道分离的图像，mat_real是摄像头探测到的原图
+//mat是已经经过了HSV通道分离的图像，mat_real是摄像头探测到的原图
 {
 	std::vector<std::vector<cv::Point>> contours; //轮廓容器
     std::vector<cv::RotatedRect> light_boxes; //灯条矩形容器

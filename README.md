@@ -1,10 +1,29 @@
 # Armor_Finder
 
+| 作者   | 负责部分       |
+| ------ | -------------- |
+| 韩煦源 | 自瞄装甲板识别、分类器 |
+| 曾宪坤 | PNP测距 |
+
 ## 一、代码运行环境
 
-- 摄像头采用640*480
+|操作系统|运行库|
+|-------|--------|
+|Ubuntu16.04<br />Windows WSL|OpenCV 3.4.7<br />cmake 3.15.4|
+
+- 本代码统一使用**640×480**大小的图像进行处理
 
 ## 二、程序编译及运行
+
+Ubuntu16.04（在项目文件夹下）
+
+```shell
+mkdir build
+cd build
+cmake ..
+make
+sudo ./main
+```
 
 ## 三、文件结构目录
 
@@ -18,9 +37,10 @@
 │   ├── dst                 // 存放原图像
 │   └── src                 // 存放经代码处理后的图像
 ├── main.cpp                // 主函数
-├── other                   // 存放一些其他代码，如计时器
+├── other                   // 存放一些其他代码，如计时器、drawText
 │   └── include             // other头文件
-└── README.md               // 代码手册
+├── README.md               // 代码手册
+└── Video                   // 存放调试代码所需的视频文件以及分类器输出的截图
 ```
 
 ## 四、关键类解析  
@@ -54,9 +74,9 @@
      >>(2)情况二（！up_right）:无需变化  
       >>>vertices_dual_light[0] =
       >>>rect_l.size.width < rect_l.size.height ? vertices_l[0] : vertices_l[1]
-      >>>vertices_dual_light[1] = 
+      >>>vertices_dual_light[1] =
       >>>rect_l.size.width < rect_l.size.height ? vertices_l[1] : vertices_l[2];
-      >>>vertices_dual_light[2] = 
+      >>>vertices_dual_light[2] =
       >>>rect_r.size.width < rect_r.size.height ? vertices_r[2] : vertices_r[3];
       >>>vertices_dual_light[3] =
       >>>rect_r.size.width < rect_r.size.height ? vertices_r[3] : vertices_r[0];                   [^相对外侧的灯条点作为装甲板的顶点]
@@ -93,6 +113,16 @@
 >与模板比较，并打分，累计分数，得出装甲板号码
 
 ## 五、装甲板识别程序运行流程
+
+- 首先对图像进行hsv二值化：将符合装甲板灯条hsv颜色的像素赋值为白色，其他像素赋值为黑色，并使用中值滤波使图像平滑
+- 使用边缘提取获得可能是灯条的旋转矩形区域
+- 根据旋转矩形的长宽比、旋转矩形对应原图区域像素的hsv明度筛选出灯条矩形
+- 对所有可能的灯条进行两两匹配，根据两灯条夹角、两灯条的高度比、两灯条中心的高度差和两灯条中心的距离与灯条高度的比值进行筛选，得出符合条件的灯条对。
+- 将灯条对的四个外顶点向上下按比例扩大至装甲板边缘，得出装甲板四边形
+- 将装甲板四边形区域截图进行仿射变换得到装甲板图像并交给分类器判断，得出装甲板及其数字id
+- 最后将框出的装甲板四边形放入PNP进行距离和角度的解算
+
+![avatar](./自瞄流程图.png)
 
 ## 六、代码命名规范
 

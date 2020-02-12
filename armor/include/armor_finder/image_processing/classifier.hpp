@@ -34,8 +34,10 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 	std::cout << "开始分类" << std::endl;
 	#endif
 
+	#ifdef USE_HSV_CLASSIFIER
     cv::cvtColor(src, src, CV_RGB2HSV); //转换为HSV
-		
+	#endif
+
 	#ifdef SHOW_CLASSIFIER_IMAGE
 	cv::imshow("SHOW_CLASSIFIER_IMAGE_HSV", src);
 	#endif
@@ -120,9 +122,11 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 			//对第i行的每个像素（Byte）进行操作
 			for(int j=0; j<cols; j++)
 			{
-				//这是用指针访问像素的方法（速度快）
-				if(p_template_image_grey[j]==255 
-				&& p_src_grey[j]==255)
+				#ifdef USE_HSV_CLASSIFIER
+				if(p_template_image_grey[j]==255 && p_src_grey[j]==0)
+				#else
+				if(p_template_image_grey[j]==255 && p_src_grey[j]==255)
+				#endif
 				{
 					gain += 3;
 				}

@@ -12,6 +12,7 @@
 #define USE_RED
 // #define USE_BLUE
 
+//#define USE_HSV_CLASSIFIER
 // #define USE_HSV_FILTER
 #define USE_RGB_FILTER
 
@@ -40,7 +41,7 @@
 // #define SHOW_ARMOR_WHOLE //显示完整装甲板矩形（宽矩形）（废）
 // #define SHOW_DISTANCE //显示距离
 
-#define FRAME_BY_FRAME
+// #define FRAME_BY_FRAME
 // #define CALSSIFIER_IMAGE_BY_IMAGE
 // #define SHOW_CLASSIFIER_IMAGE
 // #define CLASSIFIER_OUTPUT //输出分类器结果到"Video/image/dst/negative/和positive"
@@ -114,6 +115,16 @@ int main()
     // capture.open("../Video/Webcam/2019-10-28-223802.webm");
     // capture.open("../Video/Webcam/2019-10-28-223826.webm");
     // capture.open("../Video/Webcam/2019-10-28-223848.webm");
+    // capture.open("../Video/Webcam/2019-11-12-232726.webm");
+    // capture.open("../Video/Webcam/2019-11-12-232804.webm");
+    capture.open("../Video/Webcam/2019-11-12-232829.webm");
+    // capture.open("../Video/Webcam/全国赛part3.avi");
+    // capture.open("../Video/Webcam/全国赛part3_片段.mp4");
+
+
+
+
+
     cv::Mat src;
     cv::Mat src_real;
 
