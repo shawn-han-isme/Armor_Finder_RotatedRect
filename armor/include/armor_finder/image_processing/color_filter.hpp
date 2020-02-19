@@ -59,13 +59,20 @@ void hsvColorFilter(cv::Mat& inputImage, cv::Mat& outputImage)
 			
 			CvScalar s;
 
+
+			// if (( //红色的HSV定义
+			// (((s_hsv.val[0]>0)&&(s_hsv.val[0]<10)) || (s_hsv.val[0]>156)&&(s_hsv.val[0]<180))
+			// // && ((s_hsv.val[1]>43)&&(s_hsv.val[1]<255))
+			// && ((s_hsv.val[2]>0)&&(s_hsv.val[2]<221))
+			// // (s_hsv.val[2]>250)
+			// ))
 			if (( //红色的HSV定义
                 // s_hsv.val[0]>90	&&
                 // s_hsv.val[0]<130 &&
 				((s_hsv.val[2]>130))
                 ))
-			// if(false)
 			{
+				//将红色赋值为白色
 				#ifdef DEBUG
 				std::cout <<"HSV: "<<"("<<s.val[0]<<","<<s.val[1]<<","<<s.val[2]<<")"<<std::endl;
 				#endif

@@ -35,15 +35,16 @@
 // #define SHOW_IMAGEPART_LIGHT //显示灯条矩形截图
 // #define SHOW_ARMOR_IMAGE //显示装甲板矩形截图
 
-// #define SHOW_LIGHT //显示灯条矩形
-// #define SHOW_ARMOR_UP_RIGHT //显示灯条的匹配矩形（窄长矩形）
+#define SHOW_LIGHT //显示灯条矩形
 #define SHOW_ARMOR //显示完整装甲板矩形（宽矩形）
+// #define SHOW_ARMOR_UP_RIGHT //显示灯条的匹配矩形（窄长矩形）
 // #define SHOW_ARMOR_WHOLE //显示完整装甲板矩形（宽矩形）（废）
 // #define SHOW_DISTANCE //显示距离
 
 // #define FRAME_BY_FRAME
 // #define CALSSIFIER_IMAGE_BY_IMAGE
-// #define SHOW_CLASSIFIER_IMAGE
+
+#define SHOW_CLASSIFIER_IMAGE
 // #define CLASSIFIER_OUTPUT //输出分类器结果到"Video/image/dst/negative/和positive"
 
 #define CLASSIFIER_IMAGEPART_ROWS 100

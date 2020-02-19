@@ -20,7 +20,7 @@ void findArmor(cv::Mat& mat, cv::Mat& mat_real)
 //mat是已经经过了RGB通道分离的图像，mat_real是摄像头探测到的原图
 {
     #ifdef USE_RED
-    cv::medianBlur(mat, mat, 3); //中值滤波
+    cv::medianBlur(mat, mat, 5); //中值滤波
     #endif
 
     #ifdef USE_BLUE
@@ -31,14 +31,8 @@ void findArmor(cv::Mat& mat, cv::Mat& mat_real)
     cv::imshow("medianBlur", mat);
     #endif
 
-    #ifdef USE_BLUE
     cv::threshold(mat, mat, 200, 255, CV_THRESH_TOZERO);
     // cv::threshold(mat, mat, 190, 255, CV_THRESH_BINARY);
-    #endif
-
-    // #ifdef SHOW_MEDIANBLUR
-    // cv::imshow("threshold", mat);
-    // #endif
 
 	// double thresh_binar = 0.02; //二值化取thresh_binar最亮部分
 	// sp::proportion_thresh(mat, mat, 255, thresh_binar); //二值化图像
