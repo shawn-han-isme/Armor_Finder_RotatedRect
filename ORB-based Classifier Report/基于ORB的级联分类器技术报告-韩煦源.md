@@ -1,121 +1,51 @@
-# Armor_Finder
+# 基于ORB的双级联分类器技术报告-韩煦源
 
-## This repository contains codes for Roboter Armor Plate Identification Program in the DJI Robomaster Robotics Competition
+## 一、现有分类器的主要缺陷
 
-| Author   |  Responsible part |
-| ------ | -------------- |
-| Xuyuan Han | Armor Plate Recognition and Classifier |
-| Xiankun Zeng | PNP Ranging |
+### 1. 这里的“现有分类器”指的是刘佳伟给我们讲的，我也进行了一些修改：
 
-- In this program the Identification of Roboter Armor Plate will be achieved by using OpenCV to implement functions, such as image processing and image classifier.
-
-![](./ORB-based Classifier Report/Screenshot/test.jpg)
-![](./ORB-based Classifier Report/Screenshot/ans.jpg)
-
-## 1. Environment
-
-|Operating System|Runtime Library|
-|-------|--------|
-|Ubuntu16.04<br />Windows WSL|OpenCV 3.4.7<br />cmake 3.15.4|
-
-- The images with size of **640×480** are used for image processing.
-
-## 2. Program Compilation and Running
-
-Ubuntu16.04（under the project folder）
-
-```shell
-mkdir build
-cd build
-cmake ..
-make
-sudo ./main
-```
-
-## 3. Files Structure
-
-``` Files Structure
-.
-├── armor                   // main code of auto-aiming
-│   ├── include             // auto-aiming header files
-│   └── src                 // auto-aiming source code
-├── CMakeLists.txt          // cmake project files
-├── image                   // the image used by the test code
-│   ├── dst                 // the original image
-│   └── src                 // the image after process
-├── main.cpp                // main.cpp
-├── other                   // some other codes, such as timer, drawText
-│   └── include             // other header files
-├── README.md               // 
-└── Video                   // the video files used for debugging the code and the screenshots of the classifier output
-```
-
-## 4. Operation Process of the Armor Plate Identification Program
-
-- First perform hsv binarization on the image: assign the pixels that match the hsv color of the armor plate light bar to white, and assign other pixels to black, and use median filtering to make the image smooth
-- Use edge extraction to obtain a rotating rectangular area that may be a light bar
-- Filter out the light bar rectangle according to the aspect ratio of the rotated rectangle and the hsv brightness of the pixels of the rotated rectangle corresponding to the original image area
-- Perform pairwise matching of all possible light bars, and filter according to the angle between the two light bars, the height ratio of the two light bars, the height difference between the centers of the two light bars, and the ratio of the distance between the centers of the two light bars aiiind the height of the light bars. Then we get the qualified light bar pairs.
-- Extend the four outer vertices of the light bar pair up and down to the edge of the armor plate in proportion to get the armor plate quadrilateral
-- Perform affine transformation on the screenshot of the quadrilateral area of the armor plate to obtain the armor plate image and submit it to the classifier to determine the armor plate and its ID
-- Finally, put the framed armor plate quadrilateral into PNP to calculate the distance and angle
-
-![avatar](./自瞄流程图.png)
-
-## 6. code naming conventions
-
-- Function name: use the camel case nomenclature with the first letter lowercase
-- Type name: use the camel case nomenclature with the first letter capitalized
-- Variable name: use underscore  separating  nomenclature
-
-
-
-# ORB-Based Dual Cascade Classifier
-
-## 1. Classifier -- old version
-
-> Using pointers to traverse the armor plate template and the image of the input classifier (grayscaled + binarized) to increase or decrease the gain value  
+> 采用指针的方式遍历装甲板模板和输入分类器的图像（已灰度+二值化）对gain值进行加减累计：  
 > uchar* p_src_grey = src_grey.ptr<uchar>(i)
 
-| Category           | gain         |
-| ----------------- | ------------ |
-| Corresponding pixels are the same as 255 | gain+=3      |
-| Corresponding pixels are different    | gain-=2      |
-| Corresponding pixels are the same as 0   | gain remains unchanged |
+|分类|gain|
+|-|-|
+|对应像素点同为255|gain+=3|
+|对应像素点不同|gain-=2|
+|对应像素点同为0|gain保持不变|
 
-### 2. The advantage of this classifier is fast, but the disadvantages are obvious: too simple and low accuracy, it is difficult to judge whether the two matched light bars belong to the same armor plate
+### 2. 这种分类器的优点是速度快，但是缺点很明显：过于简单、准确度低，难以判断所匹配的两灯条是否属于同一块装甲板
 
-#### [1] Often match two light bars belonging to different armor plates on the same car, such as:
+#### 【1】经常将同一辆车上属于不同装甲板的两个灯条匹配在一起，如：
 
-![](./ORB-based Classifier Report/Screenshot/Screenshot from 2020-02-11 18-00-16.png)
-![](./ORB-based Classifier Report/Screenshot/Screenshot from 2020-02-11 17-59-47.png)
+![](./Screenshot/Screenshot&#32;from&#32;2020-02-11&#32;18-00-16.png)
+![](./Screenshot/Screenshot&#32;from&#32;2020-02-11&#32;17-59-47.png)
 
-#### 【2】Or match light bars belonging to different cars together, such as:
+#### 【2】或是将属于不同车的灯条匹配在一起，如：
 
-![](./ORB-based Classifier Report/Screenshot/Screenshot from 2020-02-11 17-58-29.png)
-![](./ORB-based Classifier Report/Screenshot/Screenshot from 2020-02-11 18-01-03.png)
-![](./ORB-based Classifier Report/Screenshot/Screenshot from 2020-02-11 18-01-07.png)
+![](./Screenshot/Screenshot&#32;from&#32;2020-02-11&#32;17-58-29.png)
+![](./Screenshot/Screenshot&#32;from&#32;2020-02-11&#32;18-01-03.png)
+![](./Screenshot/Screenshot&#32;from&#32;2020-02-11&#32;18-01-07.png)
 
-## 二、ORB-based Dual Cascade Classifier
+## 二、基于ORB的双级联分类器
 
-### 1. Solutions to the shortcomings of existing classifiers
+### 1. 针对现有分类器缺点的解决方案
 
-- Use the existing classifier as the first-level classifier for rough classification, and initially calculate the number of armor plates corresponding to the picture entering the classifier
-- At the same time, the classifier based on the ORB feature recognition algorithm is used as the second-level classifier for subdivision
-- The second-level classifier checks the results of the first-level classifier, and secondly filters out the classification results that do not meet the requirements
+> - 将现有分类器作为第一级分类器进行粗分,初步计算出进入分类器的图片对应的装甲板数字  
+> - 同时将基于ORB特征识别算法的分类器作为第二级分类器进行细分  
+> - 第二级分类器对第一级分类器的结果进行检查，二次筛选掉不符合要求的分类结果
 
-### 2. Reasons for adopting dual cascade classifier
+### 2. 采用双级联分类器的原因
 
-- The classifier based on ORB feature detection can achieve high recognition accuracy, but its operation speed is slow
-  - For 120*100 images, a good recognition effect can be achieved, but the calculation time for each image is about 1~2ms
-  - If the ORB classifier is used as the first-level classifier, it will take 15+ms to compare which number of armor plates the image entered into the classifier belongs to by traversing the feature values ​​of the existing template image, even if the result is accurate , But very time-consuming
+> 【1】 基于ORB特征检测的分类器可以达到很高的识别精度，但是其运算速度较慢
+>> - 对于120*100的图像可以达到很好的识别效果，但是每幅图像的运算时间大约在1~2ms  
+>> - 若将ORB分类器作为第一级分类器使用，则通过遍历已有模板图像的特征值比较输入分类器的图像属于哪一个数字的装甲板需要消耗15+ms的时间，即使结果精确，但非常耗时  
 
-- The dual cascade classifier can not only make full use of the fast recognition speed of the existing classifier, but also does not lose the advantage of the high accuracy of the ORB classifier
-  - If the recognition result of the first-level classifier is imported into the second-level ORB classifier, the ORB classifier only needs to perform feature recognition operations on this picture, which reduces the program running time
+> 【2】双级联分类器既可充分利用现有分类器识别速度快的特点，又不失ORB分类器准确度高的优势
+>> - 若将一级分类器识别结果导入二级ORB分类器，则ORB分类器仅需对此一幅图片进行特征识别运算，减少了程序运行时间
 
-## 三、ORB classifier code implementation
+## 三、ORB分类器代码实现
 
-### 1. The first-level classifier header file
+### 1. 一级分类器头文件
 
 ```C++
 #pragma once
@@ -131,50 +61,50 @@ sudo ./main
 #include <chrono>
 # include "../../../../other/include/timer.hpp"
 
-namespace sp //Use the namespace sp
+namespace sp //使用命名空间sp
 {
 bool ORB_classifier_isok(const cv::Mat& img2);
 
 int classifier(const cv::Mat& src, std::string template_filename_list) 
-//src is to intercept mat from the original image, template_filename_list is to store the file name of the template file
+//src是从原图中截取mat，template_filename_list是储存模板文件文件名文件
 {
 	#ifdef PRINT_CLASSIFIER_RUNTIME
-    sp::timer timer_classifier; //Create timer
-    timer_classifier.reset(); // start timing
+    sp::timer timer_classifier; //建立计时器
+    timer_classifier.reset(); // 开始计时
 	#endif
 
-	// preprocess the captured image
+	// 预处理截取图像
 	#ifdef DEBUG_CLASSIFIER
 	std::cout << " " << std::endl;
-	std::cout << "Start Classification" << std::endl;
+	std::cout << "开始分类" << std::endl;
 	#endif
 
-    cv::cvtColor(src, src, CV_RGB2HSV); //Convert to HSV
+    cv::cvtColor(src, src, CV_RGB2HSV); //转换为HSV
 		
 	#ifdef SHOW_CLASSIFIER_IMAGE
 	cv::imshow("SHOW_CLASSIFIER_IMAGE_HSV", src);
 	#endif
 
-	double thresh_binar = 0.85; //Binarize and take the brightest part of thresh_binar
+	double thresh_binar = 0.85; //二值化取thresh_binar最亮部分
 
 	#ifdef DEBUG_CLASSIFIER
 	std::cout << " " << std::endl;
-	std::cout << "Successfully set the binarization threshold" << std::endl;
+	std::cout << "设定二值化阈值成功" << std::endl;
 	#endif
 
 	cv::Mat src_grey;
-	cv::cvtColor(src, src_grey, CV_RGB2GRAY); //Convert the captured image to grayscale
+	cv::cvtColor(src, src_grey, CV_RGB2GRAY); //转化截取图像为灰度
 
 	#ifdef DEBUG_CLASSIFIER
 	std::cout << " " << std::endl;
-	std::cout << "Successfully captured the grayscale image" << std::endl;
+	std::cout << "灰度截取图像成功" << std::endl;
 	#endif
 
-	sp::proportion_thresh(src_grey, src_grey, 255, thresh_binar); //binarize the captured image
+	sp::proportion_thresh(src_grey, src_grey, 255, thresh_binar); //二值化截取图像
 
 	#ifdef DEBUG_CLASSIFIER
 	std::cout << " " << std::endl;
-	std::cout << "Successfully captured the binarized image" << std::endl;
+	std::cout << "二值化截取图像成功" << std::endl;
 	#endif
 
 	#ifdef SHOW_ARMOR_IMAGE
@@ -193,22 +123,22 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 	cv::imshow("SHOW_CLASSIFIER_IMAGE_GREY", src_grey);
 	#endif
 
-	// read in template image file
-	std::ifstream template_filename_in(template_filename_list); //Read in template image file name file
+	// 读入模板图像文件
+	std::ifstream template_filename_in(template_filename_list); //读入模板图像文件名文件
 	std::string template_filename;
 	
-	int gain = 0; //initialize gain
-	std::vector<int> gain_list; //Declare the container gain_list to place the gain of each image
+	int gain = 0; //初始化gain
+	std::vector<int> gain_list; //声明容器gain_list来放置每个图像的gain
 	int count_armor = 1;
 
 	while(getline(template_filename_in, template_filename))
 	{
-		// Template image preprocessing
-		cv::Mat template_image = cv::imread(template_filename); //Read in template image
+		// 模板图像预处理
+		cv::Mat template_image = cv::imread(template_filename); //读入模板图像
 
 		cv::Mat template_image_grey;
-		cv::cvtColor(template_image, template_image_grey, CV_RGB2GRAY); //Gray template image
-		sp::proportion_thresh(template_image_grey, template_image_grey, 255, thresh_binar); //binarize template image
+		cv::cvtColor(template_image, template_image_grey, CV_RGB2GRAY); //灰度模板图像
+		sp::proportion_thresh(template_image_grey, template_image_grey, 255, thresh_binar); //二值化模板图像
 
 		// 将模板图像的大小变成CLASSIFIER_IMAGEPART_COLS*CLASSIFIER_IMAGEPART_ROWS
 		cv::resize(template_image_grey, template_image_grey, cv::Size(cols, rows), (0,0), (0,0), CV_INTER_AREA);
@@ -493,12 +423,11 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 #### 【1】positive结果
 
 > 如图所示，在15秒视频识别出的155个positive结果中只有5个属于误识别  
->
 > - 即双级联ORB分类器的识别精度约为96.8%
 
-![](./ORB-based Classifier Report/Screenshot/2020-02-11.png)
-![](./ORB-based Classifier Report/Screenshot/2020-02-11 (1).png)
-![](./ORB-based Classifier Report/Screenshot/2020-02-11 (2).png)
+![](./Screenshot/2020-02-11.png)
+![](./Screenshot/2020-02-11&#32;(1).png)
+![](./Screenshot/2020-02-11&#32;(2).png)
 
 #### 【2】negative结果
 
@@ -506,26 +435,26 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 > - 但是negative结果中也输出了一些不清楚的装甲板截图
 > - 其原因在于此视频录制采用的曝光过低，装甲板上的数字显示得非常模糊，输入ORB分类器的数字残缺不全，导致特征识别出现问题，待回学校后新录视频再做检测
 
-![](./ORB-based Classifier Report/Screenshot/2020-02-11 (3).png)
-![](./ORB-based Classifier Report/Screenshot/2020-02-11 (4).png)
-![](./ORB-based Classifier Report/Screenshot/2020-02-11 (5).png)
-![](./ORB-based Classifier Report/Screenshot/2020-02-11 (6).png)
-![](./ORB-based Classifier Report/Screenshot/2020-02-11 (7).png)
+![](./Screenshot/2020-02-11&#32;(3).png)
+![](./Screenshot/2020-02-11&#32;(4).png)
+![](./Screenshot/2020-02-11&#32;(5).png)
+![](./Screenshot/2020-02-11&#32;(6).png)
+![](./Screenshot/2020-02-11&#32;(7).png)
 
 #### 【3】运行截图
 
 > 由图像可见，前面在“一、现有分类器的主要缺陷”提到的各种问题已经被避免
 
-![](./ORB-based Classifier Report/Screenshot/Screenshot from 2020-02-12 00-10-40.png)
-![](./ORB-based Classifier Report/Screenshot/Screenshot from 2020-02-12 00-08-27.png)
-![](./ORB-based Classifier Report/Screenshot/Screenshot from 2020-02-12 00-08-45.png)
-![](./ORB-based Classifier Report/Screenshot/Screenshot from 2020-02-12 00-07-13.png)
+![](./Screenshot/Screenshot&#32;from&#32;2020-02-12&#32;00-10-40.png)
+![](./Screenshot/Screenshot&#32;from&#32;2020-02-12&#32;00-08-27.png)
+![](./Screenshot/Screenshot&#32;from&#32;2020-02-12&#32;00-08-45.png)
+![](./Screenshot/Screenshot&#32;from&#32;2020-02-12&#32;00-07-13.png)
 
 ### 2. 识别速度
 
 > 由图可见，一级分类器运行时间约为4ms，二级分类器运行时间约为2ms，每帧程序运行时间约为40ms
 
-![](./ORB-based Classifier Report/Screenshot/Screenshot from 2020-02-12 00-11-21.png)
+![](./Screenshot/Screenshot&#32;from&#32;2020-02-12&#32;00-11-21.png)
 
 ## 五、总结
 
