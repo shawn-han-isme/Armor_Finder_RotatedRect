@@ -71,7 +71,7 @@ sudo ./main
 
 # ORB-Based Dual Cascade Classifier
 
-## 1. Classifier -- old version
+## 1. I. Main defects of existing classifiers
 
 > Using pointers to traverse the armor plate template and the image of the input classifier (grayscaled + binarized) to increase or decrease the gain value  
 > uchar* p_src_grey = src_grey.ptr<uchar>(i)
@@ -98,7 +98,7 @@ sudo ./main
 
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_18-01-07.png)
 
-## 二、ORB-based Dual Cascade Classifier
+## 2. ORB-based Dual Cascade Classifier
 
 ### 1. Solutions to the shortcomings of existing classifiers
 
@@ -115,7 +115,7 @@ sudo ./main
 - The dual cascade classifier can not only make full use of the fast recognition speed of the existing classifier, but also does not lose the advantage of the high accuracy of the ORB classifier
   - If the recognition result of the first-level classifier is imported into the second-level ORB classifier, the ORB classifier only needs to perform feature recognition operations on this picture, which reduces the program running time
 
-## 三、ORB classifier code implementation
+## 3. ORB classifier code implementation
 
 ### 1. The first-level classifier header file
 
@@ -212,24 +212,24 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 		cv::cvtColor(template_image, template_image_grey, CV_RGB2GRAY); //Gray template image
 		sp::proportion_thresh(template_image_grey, template_image_grey, 255, thresh_binar); //binarize template image
 
-		// 将模板图像的大小变成CLASSIFIER_IMAGEPART_COLS*CLASSIFIER_IMAGEPART_ROWS
+		// Change the size of the template image to CLASSIFIER_IMAGEPART_COLS*CLASSIFIER_IMAGEPART_ROWS
 		cv::resize(template_image_grey, template_image_grey, cv::Size(cols, rows), (0,0), (0,0), CV_INTER_AREA);
 		
 		#ifdef DEBUG_CLASSIFIER
-		std::cout << "读入" << count_armor << "号装甲板模板" << std::endl;
+		std::cout << "input" << count_armor << "number of armor plate template" << std::endl;
 		#endif
 
-		// 逐像素获取每个像素的gain并累积
+		// Get the gain of each pixel pixel by pixel and accumulate
 		for(int i=0; i<rows; i++)
 		{
-			//获取第i行首像素指针
+			//Get the pointer of the first pixel of the i-th row
 			uchar* p_template_image_grey = template_image_grey.ptr<uchar>(i);
 			uchar* p_src_grey = src_grey.ptr<uchar>(i);
 
-			//对第i行的每个像素（Byte）进行操作
+			//Operate each pixel (Byte) in the i-th row
 			for(int j=0; j<cols; j++)
 			{
-				//这是用指针访问像素的方法（速度快）
+				//This is the way to access pixels with pointers (fast)
 				if(p_template_image_grey[j]==255 
 				&& p_src_grey[j]==255)
 				{
@@ -243,7 +243,7 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 				else{}
 			
 
-				// // 这是用.at()函数的代码（速度慢）
+				// // This is the code using the .at() function (slow)
 				// if(template_image_grey.at<uchar>(i,j)==255 && src_grey.at<uchar>(i,j)==255)
 				// {
 				// 	gain += 3;
@@ -255,13 +255,13 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 				// else{}
 			}
 		}
-		gain_list.push_back(gain); //将gain加入gain_list
+		gain_list.push_back(gain); //Add gain to gain_list
 
 		#ifdef DEBUG_CLASSIFIER
-		std::cout << count_armor << "号装甲板的gain是" << gain << std::endl; //显示gain
+		std::cout << count_armor << " armor plate gain is" << gain << std::endl; //Display gain
 		#endif
 
-		gain = 0; //重置gain
+		gain = 0; //reset gain
 		count_armor++;
 	}
 
@@ -269,8 +269,8 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 	auto max = std::max_element(gain_list.begin(), gain_list.end());
 
 	#ifdef DEBUG_CLASSIFIER
-	std::cout << "这组图像的最小gain是" << *min << std::endl;
-	std::cout << "这组图像的最大gain是" << *max << std::endl;
+	std::cout << "The minimum gain of this group of images is" << *min << std::endl;
+	std::cout << "The maximum gain of this group of images is" << *max << std::endl;
 	#endif
 
 	std::string filePath;
@@ -283,7 +283,7 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 	if(*max<1000)
 	{
 		#ifdef DEBUG_CLASSIFIER
-		std::cout << "舍弃" << std::endl;
+		std::cout << "Discard" << std::endl;
 		#endif
 
 		#ifdef CLASSIFIER_OUTPUT
@@ -291,13 +291,13 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 		cv::imwrite(filePath, src_grey);
 
 		#ifdef DEBUG_CLASSIFIER
-		std::cout << "输出negative图片成功" << std::endl;
+		std::cout << "Successfully output negative pictures" << std::endl;
 		#endif
 
 		#endif
 
 		#ifdef PRINT_CLASSIFIER_RUNTIME
-	    std::cout << "> 一级分类器运行时间：" << timer_classifier.get() << "ms" << std::endl; //结束计时
+	    std::cout << "> First classifier running time: " << timer_classifier.get() << "ms" << std::endl; //End timing
 		#endif
 
 		return 0;
@@ -307,25 +307,25 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 		int maxGainArmor = (max_element(gain_list.begin(),gain_list.end()) - gain_list.begin()) + 1;
 
 		#ifdef DEBUG_PRINT_ARMORNUM
-		std::cout << "对应编号为" << maxGainArmor << "的装甲板" << std::endl;
+		std::cout << "corresponding to the armor plate numbered" << maxGainArmor << std::endl;
 		#endif
 
 		#ifdef PRINT_CLASSIFIER_RUNTIME
-	    std::cout << "> 一级分类器运行时间：" << timer_classifier.get() << "ms" << std::endl; //结束计时
+	    std::cout << "> First classifier running time: " << timer_classifier.get() << "ms" << std::endl; //End timing
 		#endif
 
-		if(ORB_classifier_isok(src_grey) //使用ORB分类器
+		if(ORB_classifier_isok(src_grey) //Using ORB classifier
 		)
 		{
 			#ifdef DEBUG_CLASSIFIER_ORB
-		    std::cout << "> 一级分类器接受到ORB返回的true" << std::endl; 
+		    std::cout << "> The first class classifier receives true returned by ORB" << std::endl; 
 			#endif
 
 			#ifdef CLASSIFIER_OUTPUT
 			filePath = "../Video/image/dst/positive/positive_"+count_classifier_str+".jpg";
 			cv::imwrite(filePath, src_grey);
 			#ifdef DEBUG_CLASSIFIER
-			std::cout << "输出positive图片成功" << std::endl;
+			std::cout << "Successfully output positive pictures" << std::endl;
 			#endif
 			#endif
 
@@ -337,12 +337,12 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 			filePath = "../Video/image/dst/negative/negative_2_"+count_classifier_str+".jpg";
 			cv::imwrite(filePath, src_grey);
 			#ifdef DEBUG_CLASSIFIER
-			std::cout << "输出negative图片成功" << std::endl;
+			std::cout << "Successfully output negative pictures" << std::endl;
 			#endif
 			#endif
 			
 			#ifdef DEBUG_CLASSIFIER_ORB
-		    std::cout << "> 一级分类器接受到ORB返回的false" << std::endl; 
+		    std::cout << "> The first class classifier receives false returned by ORB" << std::endl; 
 			#endif
 			
 			return 0;
@@ -352,7 +352,7 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 }
 ```
 
-### 2. 二级ORB分类器头文件
+### 2. Secondary ORB classifier header file
 ```C++
 #pragma once
 
@@ -360,59 +360,59 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 
 #define DRAW_IMAGE_FEATURE_MATCH
 
-namespace sp //使用命名空间sp
+namespace sp //Using the namespace sp
 {
 bool ORB_classifier_isok(const cv::Mat& img2)
 {
     #ifdef PRINT_CLASSIFIER_RUNTIME
-    sp::timer timer_classifier_orb; //建立计时器
-    timer_classifier_orb.reset(); // 开始计时
+    sp::timer timer_classifier_orb; //Create a timer
+    timer_classifier_orb.reset(); // start timing
 	#endif
 
     try
     { 
-    //【1】载入原图片并显示+载入的图像是二值化之后的图像
-    //img1是模板图像，img2是待检测图
+    //[1] Load the original picture and display + the loaded image is the image after binarization
+    //img1 is the template image, img2 is the image to be tested
     cv::Mat img1 = cv::imread("../Video/image/src/armor/T4.jpg",0);
-    if(!img1.data||!img2.data)//检测图片是否读取成功
+    if(!img1.data||!img2.data)//Check whether the image is read successfully
     {
-        std::cout<<"读取图片错误，请确定目录下是否存在该图片"<<std::endl;
+        std::cout<<"Error reading picture, please make sure whether the picture exists in the directory"<<std::endl;
     }
-    // cv::medianBlur(img1, img1, 3); //中值滤波
-    // cv::medianBlur(img2, img2, 3); //中值滤波
+    // cv::medianBlur(img1, img1, 3); //median filter
+    // cv::medianBlur(img2, img2, 3); //median filter
 
-    //【2】定义需要用到的变量和类
-    cv::Ptr<cv::ORB> detector = cv::ORB::create(200,1.2); //定义一个ORB特征检测类对象detector
-    std::vector<cv::KeyPoint> keypoint_1, keypoint_2;//放置特征点
+    //[2] Define the variables and classes that need to be used
+    cv::Ptr<cv::ORB> detector = cv::ORB::create(200,1.2); //Define an ORB feature detection class object detector
+    std::vector<cv::KeyPoint> keypoint_1, keypoint_2;//Place feature points
     cv::Mat descriptors_1, descriptors_2;
 
-    //【3】调用detect函数检测出SURF特征关键点，保存在vector容器中
+    //[3] Call the detect function to detect the key points of SURF features and save them in the vector container
     detector->detectAndCompute(img1,cv::Mat(),keypoint_1,descriptors_1);
     detector->detectAndCompute(img2,cv::Mat(),keypoint_2,descriptors_2);
     
     #ifdef DEBUG_CLASSIFIER_ORB
     if(!descriptors_1.data)
     {
-        std::cout<<"> descriptors_1无内容"<<std::endl;
+        std::cout<<"> descriptors_1 has no content"<<std::endl;
     }
     if (!descriptors_2.data)
     {
-        std::cout<<"> descriptors_2无内容"<<std::endl;
+        std::cout<<"> descriptors_2 has no content"<<std::endl;
     }
     #endif
     
-    //【4】基于FLANN的描述符对象匹配
+    //[4] FLANN-based descriptor object matching
     std::vector<cv::DMatch> matches;
-    // 初始化flann匹配
+    // Initialize flann matching
     cv::flann::Index flannIndex(descriptors_1, cv::flann::LshIndexParams(12,20,2), cvflann::FLANN_DIST_HAMMING);
 
-    //【5】匹配和测试描述符，获取两个最邻近的描述符
+    //[5] Match and test descriptors, get the two closest descriptors
     cv::Mat matchIndex(descriptors_1.rows, 2, CV_32SC1);
     cv::Mat matchDistance(descriptors_1.rows, 2, CV_32FC1);
 
-    flannIndex.knnSearch(descriptors_2, matchIndex, matchDistance, 2, cv::flann::SearchParams());//调用K邻近算法
+    flannIndex.knnSearch(descriptors_2, matchIndex, matchDistance, 2, cv::flann::SearchParams());//K proximity algorithm
 
-    //【6】根据劳氏算法(Low's algorithm)选出优秀的匹配
+    //[6] Select an excellent match according to Low's algorithm
     std::vector<cv::DMatch> good_matches;
     for(int i=0;i<matchDistance.rows;i++)
     {
@@ -423,38 +423,38 @@ bool ORB_classifier_isok(const cv::Mat& img2)
         }
     }
 
-    //【7】绘制并显示匹配窗口
+    //[7] Draw and display the matching window
     cv::Mat img_matches;
     cv::drawMatches(img2,keypoint_2,img1,keypoint_2,good_matches,img_matches);
 
-    // 【8】输出相关匹配点信息
+    // [8] Output related matching point information
     for(int i=0;i<good_matches.size();i++)
     {
-        std::cout<<"> 符合条件的匹配点 "<<i<<" 特征点1："<<good_matches[i].queryIdx<<" -- 特征点2："<<good_matches[i].trainIdx<<std::endl;
+        std::cout<<"> Eligible matching points "<<i<<" Feature point 1: "<<good_matches[i].queryIdx<<" -- Feature point 2: "<<good_matches[i].trainIdx<<std::endl;
     }
     
-    // 【9】打印特征信息
+    // [9]Print feature information
     std::cout<<"> img1检测到特征点"<<keypoint_1.size()<<"个"<<std::endl;
     std::cout<<"> img2检测到特征点"<<keypoint_2.size()<<"个"<<std::endl;
     #ifdef DEBUG_CLASSIFIER_ORB
     std::cout<<"> 共匹配到特征点"<<good_matches.size()<<"对"<<std::endl;
     #endif
 
-    //【10】绘制特征图像
+    //[10] Draw feature image
     #ifdef DRAW_IMAGE_FEATURE_MATCH
     cv::Mat img1_keypoint, img2_keypoint;
     cv::drawKeypoints(img1,keypoint_1,img1_keypoint);
     cv::drawKeypoints(img2,keypoint_2,img2_keypoint);
-    cv::imshow("> 特征点检测效果图1",img1_keypoint);
-    cv::imshow("> 特征点检测效果图2",img2_keypoint);
-    cv::imshow("匹配效果图",img_matches);
+    cv::imshow("> Feature point detection result picture 1",img1_keypoint);
+    cv::imshow("> Feature point detection result picture 2",img2_keypoint);
+    cv::imshow("Matching result picture",img_matches);
     // cv::waitKey(0);
     #endif
 
     if(good_matches.size()>1)
     {
         #ifdef PRINT_CLASSIFIER_RUNTIME
-	    std::cout << "> 二级分类器运行时间：" << timer_classifier_orb.get() << "ms" << std::endl; //结束计时
+	    std::cout << "> Secondary classifier running time: " << timer_classifier_orb.get() << "ms" << std::endl; //End timing
 		#endif
 
         return true;
@@ -462,7 +462,7 @@ bool ORB_classifier_isok(const cv::Mat& img2)
     else
     {
         #ifdef PRINT_CLASSIFIER_RUNTIME
-	    std::cout << "> 二级分类器运行时间：" << timer_classifier_orb.get() << "ms" << std::endl; //结束计时
+	    std::cout << "> Secondary classifier running time: " << timer_classifier_orb.get() << "ms" << std::endl; //End timing
 		#endif
         
         return false;
@@ -473,13 +473,13 @@ bool ORB_classifier_isok(const cv::Mat& img2)
     catch (std::exception& e) 
     {
         #ifdef PRINT_CLASSIFIER_RUNTIME
-	    std::cout << "> 二级分类器运行时间：" << timer_classifier_orb.get() << "ms" << std::endl; //结束计时
+	    std::cout << "> Secondary classifier running time: " << timer_classifier_orb.get() << "ms" << std::endl; //End timing
 		#endif
 
         #ifdef DEBUG_CLASSIFIER_ORB
-        // std::cout << "> ORB分类器出错:" << std::endl; 
-        std::cout << "> ORB分类器出错:" << std::endl <<"> Standard exception: " << std::endl << e.what() << std::endl; 
-        std::cout << "> ORB返回false" << std::endl;
+        // std::cout << "> ORB classifier error: " << std::endl; 
+        std::cout << "> ORB classifier error: " << std::endl <<"> Standard exception: " << std::endl << e.what() << std::endl; 
+        std::cout << "> ORB returns false" << std::endl;
         #endif
 
         return false;
@@ -488,15 +488,15 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 }
 ```
 
-## 四、双级联分类器运行结果
+## 4. Running Results of the Dual Cascade Classifier
 
-### 1. 识别精度
+### 1. Recognition accuracy
 
-#### 【1】positive结果
+#### 【1】Positive result
 
-> 如图所示，在15秒视频识别出的155个positive结果中只有5个属于误识别  
+> As shown in the figure, only 5 of the 155 positive results identified in the 15-second video are misidentified  
 >
-> - 即双级联ORB分类器的识别精度约为96.8%
+> - That is, the recognition accuracy of the dual cascade ORB classifier is about 96.8%
 
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11.png)
 
@@ -504,11 +504,11 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11(2).png)
 
-#### 【2】negative结果
+#### 【2】Negative results
 
-> 如图所示，negative结果中输出的基本都是负相关分类器截图
-> - 但是negative结果中也输出了一些不清楚的装甲板截图
-> - 其原因在于此视频录制采用的曝光过低，装甲板上的数字显示得非常模糊，输入ORB分类器的数字残缺不全，导致特征识别出现问题，待回学校后新录视频再做检测
+> As shown in the figure, the output in the negative result is basically screenshots of results of the negative correlation classifier
+> - But some unclear screenshots of armor plates are also output in the negative results
+> - The reason is that the exposure used in this video recording is too low, the numbers on the armor plate are displayed very vaguely, and the numbers input to the ORB classifier are incomplete, resulting in problems with feature recognition. After returning to school, the newly recorded video will be tested again
 
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11(3).png)
 
@@ -520,9 +520,9 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11(7).png)
 
-#### 【3】运行截图
+#### 【3】Video Run Screenshot
 
-> 由图像可见，前面在“一、现有分类器的主要缺陷”提到的各种问题已经被避免
+> As can be seen from the image, the various problems mentioned in the previous section "I. Main defects of existing classifiers" have been avoided
 
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-12_00-10-40.png)
 
@@ -532,13 +532,13 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-12_00-07-13.png)
 
-### 2. 识别速度
+### 2. Recognition speed
 
-> 由图可见，一级分类器运行时间约为4ms，二级分类器运行时间约为2ms，每帧程序运行时间约为40ms
+> As can be seen from the figure, the running time of the first classifier is about 4ms, the running time of the second classifier is about 2ms, and the program running time per frame is about 40ms
 
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-12_00-11-21.png)
 
-## 五、总结
+## 五、summary
 
-> 综上所述，基于ORB的双级联分类器可以达到很高的识别精度和较快的运算速度
-> 程序中还有一些参数要在实际中调节，以达到更好的效果
+> In summary, the ORB-based dual-cascade classifier can achieve high recognition accuracy and faster calculation speed
+> There are some parameters in the program that need to be adjusted in practice to achieve better results
