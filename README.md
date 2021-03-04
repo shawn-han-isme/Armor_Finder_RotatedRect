@@ -10,6 +10,7 @@
 - In this program the Identification of Roboter Armor Plate will be achieved by using OpenCV to implement functions, such as image processing and image classifier.
 
 ![](./ORB_based_Classifier_Report/Screenshot/test.jpg)
+
 ![](./ORB_based_Classifier_Report/Screenshot/ans.jpg)
 
 ## 1. Environment
@@ -60,15 +61,13 @@ sudo ./main
 - Perform affine transformation on the screenshot of the quadrilateral area of the armor plate to obtain the armor plate image and submit it to the classifier to determine the armor plate and its ID
 - Finally, put the framed armor plate quadrilateral into PNP to calculate the distance and angle
 
-![avatar](./自瞄流程图.png)
+![](./自瞄流程图.png)
 
 ## 6. code naming conventions
 
 - Function name: use the camel case nomenclature with the first letter lowercase
 - Type name: use the camel case nomenclature with the first letter capitalized
 - Variable name: use underscore  separating  nomenclature
-
-
 
 # ORB-Based Dual Cascade Classifier
 
@@ -88,12 +87,15 @@ sudo ./main
 #### [1] Often match two light bars belonging to different armor plates on the same car, such as:
 
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot from 2020-02-11 18-00-16.png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot from 2020-02-11 17-59-47.png)
 
 #### 【2】Or match light bars belonging to different cars together, such as:
 
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot from 2020-02-11 17-58-29.png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot from 2020-02-11 18-01-03.png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot from 2020-02-11 18-01-07.png)
 
 ## 二、ORB-based Dual Cascade Classifier
@@ -497,7 +499,9 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 > - 即双级联ORB分类器的识别精度约为96.8%
 
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11.png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11 (1).png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11 (2).png)
 
 #### 【2】negative结果
@@ -507,9 +511,13 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 > - 其原因在于此视频录制采用的曝光过低，装甲板上的数字显示得非常模糊，输入ORB分类器的数字残缺不全，导致特征识别出现问题，待回学校后新录视频再做检测
 
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11 (3).png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11 (4).png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11 (5).png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11 (6).png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11 (7).png)
 
 #### 【3】运行截图
@@ -517,8 +525,11 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 > 由图像可见，前面在“一、现有分类器的主要缺陷”提到的各种问题已经被避免
 
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot from 2020-02-12 00-10-40.png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot from 2020-02-12 00-08-27.png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot from 2020-02-12 00-08-45.png)
+
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot from 2020-02-12 00-07-13.png)
 
 ### 2. 识别速度
