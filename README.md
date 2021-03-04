@@ -1,6 +1,6 @@
 # Armor_Finder
 
-## This repository contains codes for Roboter Armor Plate Identification Program in the DJI Robomaster Robotics Competition
+### This repository contains codes for Roboter Armor Plate Identification Program in the DJI Robomaster Robotics Competition
 
 | Author   |  Responsible part |
 | ------ | -------------- |
@@ -63,15 +63,15 @@ sudo ./main
 
 ![](./自瞄流程图.png)
 
-## 6. code naming conventions
+## 5. code naming conventions
 
 - Function name: use the camel case nomenclature with the first letter lowercase
 - Type name: use the camel case nomenclature with the first letter capitalized
-- Variable name: use underscore  separating  nomenclature
+- Variable name: use underscore separating  nomenclature
 
 # ORB-Based Dual Cascade Classifier
 
-## 1. I. Main defects of existing classifiers
+## 1. Main defects of existing classifiers
 
 > Using pointers to traverse the armor plate template and the image of the input classifier (grayscaled + binarized) to increase or decrease the gain value  
 > uchar* p_src_grey = src_grey.ptr<uchar>(i)
@@ -82,31 +82,31 @@ sudo ./main
 | Corresponding pixels are different    | gain-=2      |
 | Corresponding pixels are the same as 0   | gain remains unchanged |
 
-### 2. The advantage of this classifier is fast, but the disadvantages are obvious: too simple and low accuracy, it is difficult to judge whether the two matched light bars belong to the same armor plate
+- The advantage of this classifier is fast, but the disadvantages are obvious: too simple and low accuracy, it is difficult to judge whether the two matched light bars belong to the same armor plate
 
-#### [1] Often match two light bars belonging to different armor plates on the same car, such as:
+  - Often match two light bars belonging to different armor plates on the same car, such as:
 
-![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_18-00-16.png)
+  ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_18-00-16.png)
 
-![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_17-59-47.png)
+  ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_17-59-47.png)
 
-#### 【2】Or match light bars belonging to different cars together, such as:
+  - Or match light bars belonging to different cars together, such as:
 
-![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_17-58-29.png)
+  ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_17-58-29.png)
 
-![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_18-01-03.png)
+  ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_18-01-03.png)
 
-![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_18-01-07.png)
-
+  ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-11_18-01-07.png)
+  
 ## 2. ORB-based Dual Cascade Classifier
 
-### 1. Solutions to the shortcomings of existing classifiers
+### 1) Solutions to the shortcomings of existing classifiers
 
 - Use the existing classifier as the first-level classifier for rough classification, and initially calculate the number of armor plates corresponding to the picture entering the classifier
 - At the same time, the classifier based on the ORB feature recognition algorithm is used as the second-level classifier for subdivision
 - The second-level classifier checks the results of the first-level classifier, and secondly filters out the classification results that do not meet the requirements
 
-### 2. Reasons for adopting dual cascade classifier
+### 2) Reasons for adopting dual cascade classifier
 
 - The classifier based on ORB feature detection can achieve high recognition accuracy, but its operation speed is slow
   - For 120*100 images, a good recognition effect can be achieved, but the calculation time for each image is about 1~2ms
@@ -117,7 +117,7 @@ sudo ./main
 
 ## 3. ORB classifier code implementation
 
-### 1. The first-level classifier header file
+### 1) The first-level classifier header file
 
 ```C++
 #pragma once
@@ -352,7 +352,7 @@ int classifier(const cv::Mat& src, std::string template_filename_list)
 }
 ```
 
-### 2. Secondary ORB classifier header file
+### 2) Secondary ORB classifier header file
 ```C++
 #pragma once
 
@@ -490,9 +490,9 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 
 ## 4. Running Results of the Dual Cascade Classifier
 
-### 1. Recognition accuracy
+### 1) Recognition accuracy
 
-#### 【1】Positive result
+#### [1] Positive result
 
 > As shown in the figure, only 5 of the 155 positive results identified in the 15-second video are misidentified  
 >
@@ -504,7 +504,7 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11(2).png)
 
-#### 【2】Negative results
+#### [2] Negative results
 
 > As shown in the figure, the output in the negative result is basically screenshots of results of the negative correlation classifier
 > - But some unclear screenshots of armor plates are also output in the negative results
@@ -520,7 +520,7 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 
 ![](./ORB_based_Classifier_Report/Screenshot/2020-02-11(7).png)
 
-#### 【3】Video Run Screenshot
+#### [3] Video Run Screenshot
 
 > As can be seen from the image, the various problems mentioned in the previous section "I. Main defects of existing classifiers" have been avoided
 
@@ -532,13 +532,13 @@ bool ORB_classifier_isok(const cv::Mat& img2)
 
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-12_00-07-13.png)
 
-### 2. Recognition speed
+### 2) Recognition speed
 
 > As can be seen from the figure, the running time of the first classifier is about 4ms, the running time of the second classifier is about 2ms, and the program running time per frame is about 40ms
 
 ![](./ORB_based_Classifier_Report/Screenshot/Screenshot_from_2020-02-12_00-11-21.png)
 
-## 五、summary
+## 5. summary
 
-> In summary, the ORB-based dual-cascade classifier can achieve high recognition accuracy and faster calculation speed
-> There are some parameters in the program that need to be adjusted in practice to achieve better results
+In summary, the ORB-based dual-cascade classifier can achieve high recognition accuracy and faster calculation speed
+There are some parameters in the program that need to be adjusted in practice to achieve better results.
